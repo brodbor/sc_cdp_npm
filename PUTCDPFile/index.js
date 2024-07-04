@@ -1,11 +1,8 @@
-const stream = require('stream');
-const { BlobServiceClient } = require('@azure/storage-blob');
-const util = require('util')
-const containerName = 'fssyn';
-
-
-
-
+/**
+ * Converts a readable stream to a buffer.
+ * @param {stream.Readable} readableStream - The readable stream to convert.
+ * @returns {Promise<Buffer>} A promise that resolves with the converted buffer.
+ */
 async function streamToBuffer(readableStream) {
     return new Promise((resolve, reject) => {
         const chunks = [];
@@ -19,13 +16,15 @@ async function streamToBuffer(readableStream) {
     });
 }
 
-
+/**
+ * Azure Function entry point.
+ * @param {Object} context - The Azure Function context object.
+ * @param {Object} req - The HTTP request object.
+ */
 module.exports = async function (context, req) {
-
     context.log(req.rawBody);
 
-    const blob_conn = process.env.blob_conn
-
+    const blob_conn = process.env.blob_conn;
 
     const json = req.rawBody;
     const obj = JSON.parse(json);
@@ -34,25 +33,16 @@ module.exports = async function (context, req) {
     const md5 = obj.md5;
     const url = obj.url;
 
-
-    const containerName = "fssyn";
+    const containerName = "cdp";
     const blobServiceClient = BlobServiceClient.fromConnectionString(blob_conn);
-    // create container client
     const containerClient = blobServiceClient.getContainerClient(containerName);
-
-
-
 
     const blobClient = containerClient.getBlockBlobClient(blobName);
 
-
     const downloadResponse = await blobClient.download();
-
     const downloaded = await streamToBuffer(downloadResponse.readableStreamBody);
 
-
     var request = require('request');
-
     const requestPromise = util.promisify(request);
     var options = {
         'method': 'PUT',
@@ -63,23 +53,15 @@ module.exports = async function (context, req) {
             'Content-Type': 'text/plain'
         },
         body: downloaded
-
     };
-
 
     try {
         const response = await requestPromise(options);
         console.log(response.body);
         context.res = {
-            //status: 200, /* Defaults to 200 */
             body: response.body
         };
     } catch (error) {
-        // Handle your error here
-        throw new Error(error);
+        throw new Error(error.body);
     }
-
-
-
-
 }
