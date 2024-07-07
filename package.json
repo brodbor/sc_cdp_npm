@@ -1,22 +1,23 @@
 {
   "name": "sc_cdp_npm",
   "version": "1.0.0",
-  "description": "",
   "scripts": {
     "start": "func start",
     "test": "echo \"No tests yet...\""
   },
   "dependencies": {
-
-    "@azure/storage-blob": "^12.12.0",
+    "@azure/identity": "^4.3.0",
+    "@azure/storage-blob": "^12.23.0",
+    "crypto": "",
+    "digest-stream": "2.0.0",
     "dotenv": "^8.2.0",
     "request": "^2.8",
-    "uuid": "^3.3.2", 
-
-  "stream": "",
-  "crypto": "",
-  "digest-stream":"2.0.0"
-
+    "stream": "",
+    "uuid": "^3.3.2",
+    "zlib": "^1.0.5"
   },
-  "devDependencies": {}
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
 }

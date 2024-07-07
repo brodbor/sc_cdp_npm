@@ -1,3 +1,5 @@
+const { BlobServiceClient } = require("@azure/storage-blob");
+
 /**
  * Converts a readable stream to a buffer.
  * @param {stream.Readable} readableStream - The readable stream to convert.
@@ -23,7 +25,7 @@ async function streamToBuffer(readableStream) {
  */
 module.exports = async function (context, req) {
     context.log(req.rawBody);
-
+    try {
     const blob_conn = process.env.blob_conn;
 
     const json = req.rawBody;
@@ -43,6 +45,7 @@ module.exports = async function (context, req) {
     const downloaded = await streamToBuffer(downloadResponse.readableStreamBody);
 
     var request = require('request');
+    var util=			require('util');
     const requestPromise = util.promisify(request);
     var options = {
         'method': 'PUT',
@@ -55,13 +58,14 @@ module.exports = async function (context, req) {
         body: downloaded
     };
 
-    try {
+  
         const response = await requestPromise(options);
         console.log(response.body);
         context.res = {
             body: response.body
         };
-    } catch (error) {
-        throw new Error(error.body);
+    } catch (ex) {
+        context.log.error(ex.message, ex.message);
+        context.res = { status: 500, body: ex.message }
     }
 }
